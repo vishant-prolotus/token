@@ -1,0 +1,29 @@
+var express = require('express');
+var router = express.Router();
+const mongodb = require('mongodb');
+var crypto=require('crypto');
+var MongoClient = require('mongodb').MongoClient;
+var Mailgun = require('mailgun').Mailgun;
+var mg = new Mailgun('key-001902229d1f3c9beb6653254fa477e2');
+
+
+/* GET home page. */
+router.get('/', function(req, res) {
+  var collection = global.db.collection('Users');
+  var hash = crypto.createHash('md5').update('vishant'+Date.now()).digest('hex');
+  var ExpireTime = Date.now();
+  collection.insertOne({Hash:hash,Expire:JSON.stringify(ExpireTime)}, function(err, response) {
+    if(err){
+        return res.send(err);
+    }
+    mg.sendText('Mailgun Sandbox <postmaster@sandbox0b6d206a885444d5bdd039deb7ed8ab5.mailgun.org>', ['vishant.singh@sofocle.com'],
+      'This is the subject',
+      'This is Activation Link'+'/n'+
+      'http://172.18.0.1:3000/VerifyToken?token='+hash,
+       {},
+      function(error) {
+        if (error) return res.send( error);
+        else     return res.send(response);
+    });
+  });
+});
