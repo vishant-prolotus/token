@@ -27,3 +27,15 @@ router.get('/', function(req, res) {
     });
   });
 });
+
+//app.js code
+app.use('/VerifyToken',function(req,res) {
+  var collection = global.db.collection('Users');
+  collection.findOne({Hash:req.query.token}, {fields:{Expire:1}},function(error, response) {
+      if(error){
+          return res.send(error);
+      }
+      console.log(response);
+  });
+  res.render('index', { title: 'Hey', message: 'Hello there!' });
+});
